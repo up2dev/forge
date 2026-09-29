@@ -1,0 +1,20 @@
+meta {
+  name: List authors
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/authors/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+params:query {
+  ~filters: name:lk(herbert)
+  ~with: books
+}

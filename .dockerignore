@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+forge.db
+test.db
+storage/
+bruno/
+.git/
+*.md

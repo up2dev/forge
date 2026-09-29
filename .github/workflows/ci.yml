@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyflakes
+      # alembic/env.py exclu : un import fait exprès pour son effet de
+      # bord (enregistrer les modèles) que pyflakes signale toujours à
+      # tort, même avec # noqa — voir alembic/env.py.
+      - run: pyflakes forge/ example_app/ scripts/ tests/
+
+  test-sqlite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - run: pytest -q
+
+  # La base de dev/test par défaut est SQLite (rapide, zéro
+  # installation) — mais la prod tourne sur Postgres. Un comportement
+  # qui diffère entre les deux (typage des filtres, ALTER COLUMN d'une
+  # migration...) ne se voit qu'ici. Trouvé pour de vrai en construisant
+  # cette CI : un filtre sur une colonne entière plantait sur Postgres,
+  # silencieux sur SQLite — corrigé avant que ce job existe.
+  test-postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: forge
+          POSTGRES_PASSWORD: forge
+          POSTGRES_DB: forge
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U forge"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql+asyncpg://forge:forge@localhost:5432/forge
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - run: pytest -q
+      # Les migrations sont ce que la prod applique réellement — un
+      # aller (upgrade) puis un retour (downgrade) complet, sur ce même
+      # Postgres, pas seulement sur la base de test que pytest gère lui-même.
+      - run: alembic upgrade head
+      - run: alembic downgrade base
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t forge:dev .
+      - run: docker build -f Dockerfile.prod -t forge:prod .

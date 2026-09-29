@@ -1,0 +1,21 @@
+meta {
+  name: Chunked - 2. Append chunk
+  type: http
+  seq: 7
+}
+
+put {
+  url: {{baseUrl}}/files/1
+  body: binary
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Corps brut (onglet Body -> Binary dans Bruno) — pas de multipart. À
+  relancer autant de fois que de morceaux, dans l'ordre. Remplace "1"
+  par l'id de Chunked - 1. Start.
+}

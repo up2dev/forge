@@ -1,0 +1,35 @@
+meta {
+  name: List books
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/books/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+params:query {
+  ~filters: title:lk(dune)
+  ~sort: year.desc
+  ~with: author
+  ~page: 1
+  ~limit: 20
+}
+
+docs {
+  Les paramètres sont désactivés (~) par défaut — décoche celui que tu
+  veux tester dans l'onglet Params de Bruno.
+
+  - filters : DSL du framework, ex. title:lk(dune) ou
+    year:gte(1960),year:lte(1970)
+  - sort : champ.direction, ex. year.desc
+  - with : relations autorisées par BookRepository.includes (ici
+    seulement "author") — toute autre valeur est silencieusement
+    ignorée, pas d'erreur.
+}

@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+
+# Base locale (hors Docker)
+forge.db
+test.db
+
+# Fichiers uploadés + logs (contenu réel, jamais commité)
+storage/
+
+# OS / éditeurs
+.DS_Store
+Thumbs.db
+*Zone.Identifier*
+
+# Env — .env (dev) reste volontairement COMMITÉ : ses valeurs
+# (forge/forge, changeme...) n'ont aucune conséquence en local, et
+# docker-compose.yml en a besoin pour démarrer (env_file: .env). Seuls
+# les fichiers contenant de VRAIS secrets sont exclus.
+.env.prod
+.env.*.local

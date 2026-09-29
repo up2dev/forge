@@ -1,0 +1,29 @@
+meta {
+  name: Chunked - 1. Start
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/files/start
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "filename": "big.pdf",
+    "content_type": "application/pdf",
+    "total_bytes": 500000
+  }
+}
+
+docs {
+  total_bytes doit correspondre à la taille réelle du fichier — un
+  chunk qui ferait dépasser ce total est refusé (413). L'id renvoyé
+  reste le même jusqu'à la fin (Complete), pas de changement d'id.
+}

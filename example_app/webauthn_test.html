@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Test WebAuthn — Forge</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
+  body { font-family: -apple-system, "Segoe UI", sans-serif; max-width: 640px; margin: 40px auto; padding: 0 20px; color: #222; }
+  h1 { font-size: 1.4rem; }
+  section { border: 1px solid #ddd; border-radius: 8px; padding: 16px 20px; margin-bottom: 20px; }
+  section.disabled { opacity: 0.4; pointer-events: none; }
+  input { padding: 8px; margin-right: 8px; border: 1px solid #ccc; border-radius: 4px; }
+  button { padding: 8px 16px; border: none; border-radius: 4px; background: #1a73e8; color: white; cursor: pointer; }
+  button:hover { background: #1558b0; }
+  #log { background: #111; color: #0f0; font-family: monospace; font-size: 0.85rem; padding: 12px; border-radius: 6px; height: 260px; overflow-y: auto; white-space: pre-wrap; }
+  .ok { color: #4caf50; font-weight: bold; }
+  .err { color: #f44336; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h1>Test WebAuthn (clé de sécurité) — Forge</h1>
+<p>Sert cette page depuis le serveur lui-même (<code>http://localhost:8000/webauthn-test</code>)
+— l'origine doit correspondre exactement à <code>FORGE_WEBAUTHN_ORIGIN</code>, sinon le navigateur
+refuse avant même d'atteindre ta clé.</p>
+
+<section id="login-section">
+  <h2>1. Connexion</h2>
+  <input id="login" placeholder="login" value="admin">
+  <input id="password" type="password" placeholder="mot de passe" value="changeme">
+  <button onclick="doLogin()">Se connecter</button>
+</section>
+
+<section id="register-section" class="disabled">
+  <h2>2. Enregistrer une clé de sécurité</h2>
+  <p>Ton navigateur va te demander d'insérer/toucher ta Yubikey.</p>
+  <button onclick="doRegister()">Enregistrer ma clé</button>
+</section>
+
+<section id="verify-section" class="disabled">
+  <h2>3. Se reconnecter avec la clé</h2>
+  <p>Reconnexion complète : mot de passe, puis la clé pour le deuxième facteur.</p>
+  <button onclick="doLoginWithKey()">Se connecter avec la clé</button>
+</section>
+
+<h2>Journal</h2>
+<div id="log"></div>
+
+<script>
+let token = null;
+
+function log(msg, cls) {
+  const el = document.getElementById('log');
+  const line = document.createElement('div');
+  if (cls) line.className = cls;
+  line.textContent = msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+// WebAuthn parle en ArrayBuffer, le serveur en base64url (JSON-safe) —
+// ces deux fonctions font l'aller-retour.
+function base64urlToBuffer(base64url) {
+  const padding = '='.repeat((4 - (base64url.length % 4)) % 4);
+  const base64 = (base64url + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  const buffer = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) buffer[i] = raw.charCodeAt(i);
+  return buffer.buffer;
+}
+
+function bufferToBase64url(buffer) {
+  const bytes = new Uint8Array(buffer);
+  let str = '';
+  for (const b of bytes) str += String.fromCharCode(b);
+  return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+async function api(path, body, auth) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (auth) headers['Authorization'] = 'Bearer ' + auth;
+  const r = await fetch(path, { method: 'POST', headers, body: JSON.stringify(body || {}) });
+  const json = await r.json();
+  if (!r.ok) throw new Error((json.errors && json.errors.detail) || 'Erreur ' + r.status);
+  return json.data;
+}
+
+async function doLogin() {
+  try {
+    const data = await api('/auth/login', {
+      login: document.getElementById('login').value,
+      password: document.getElementById('password').value,
+    });
+    token = data.token;
+    log('Connecté (self-service) — token obtenu.', 'ok');
+    document.getElementById('register-section').classList.remove('disabled');
+    document.getElementById('verify-section').classList.remove('disabled');
+  } catch (e) {
+    log('Échec connexion : ' + e.message, 'err');
+  }
+}
+
+async function doRegister() {
+  try {
+    log('Demande des options d\'inscription au serveur...');
+    const setup = await api('/auth/mfa/setup', { method: 'webauthn' }, token);
+    const options = setup.webauthn_options;
+
+    // decode: challenge et user.id en ArrayBuffer, comme l'attend
+    // navigator.credentials.create()
+    const publicKey = {
+      ...options,
+      challenge: base64urlToBuffer(options.challenge),
+      user: { ...options.user, id: base64urlToBuffer(options.user.id) },
+      excludeCredentials: (options.excludeCredentials || []).map(c => ({ ...c, id: base64urlToBuffer(c.id) })),
+    };
+
+    log('Navigateur : insère/touche ta clé maintenant...');
+    const credential = await navigator.credentials.create({ publicKey });
+
+    const response = {
+      id: credential.id,
+      rawId: bufferToBase64url(credential.rawId),
+      type: credential.type,
+      response: {
+        clientDataJSON: bufferToBase64url(credential.response.clientDataJSON),
+        attestationObject: bufferToBase64url(credential.response.attestationObject),
+      },
+    };
+
+    log('Clé détectée, envoi de la confirmation au serveur...');
+    await api('/auth/mfa/confirm', { method: 'webauthn', webauthn_response: response }, token);
+    log('Clé enregistrée et confirmée.', 'ok');
+  } catch (e) {
+    log('Échec inscription : ' + e.message, 'err');
+  }
+}
+
+async function doLoginWithKey() {
+  try {
+    log('Reconnexion (mot de passe)...');
+    const login = await api('/auth/login', {
+      login: document.getElementById('login').value,
+      password: document.getElementById('password').value,
+    });
+
+    if (!login.pending_token) {
+      log('Pas de MFA en attente — la clé n\'est peut-être pas confirmée.', 'err');
+      return;
+    }
+
+    log('Demande du challenge de connexion...');
+    const optionsResp = await api('/auth/mfa/webauthn/login-options', { pending_token: login.pending_token });
+    const options = optionsResp.options;
+
+    const publicKey = {
+      ...options,
+      challenge: base64urlToBuffer(options.challenge),
+      allowCredentials: (options.allowCredentials || []).map(c => ({ ...c, id: base64urlToBuffer(c.id) })),
+    };
+
+    log('Navigateur : touche ta clé pour te connecter...');
+    const assertion = await navigator.credentials.get({ publicKey });
+
+    const response = {
+      id: assertion.id,
+      rawId: bufferToBase64url(assertion.rawId),
+      type: assertion.type,
+      response: {
+        clientDataJSON: bufferToBase64url(assertion.response.clientDataJSON),
+        authenticatorData: bufferToBase64url(assertion.response.authenticatorData),
+        signature: bufferToBase64url(assertion.response.signature),
+      },
+    };
+
+    const result = await api('/auth/mfa/verify', {
+      pending_token: login.pending_token, method: 'webauthn', webauthn_response: response,
+    });
+
+    log('Connecté avec la clé ! Nouveau token : ' + result.token.slice(0, 20) + '...', 'ok');
+  } catch (e) {
+    log('Échec connexion avec la clé : ' + e.message, 'err');
+  }
+}
+</script>
+</body>
+</html>

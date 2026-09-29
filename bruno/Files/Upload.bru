@@ -1,0 +1,25 @@
+meta {
+  name: Upload
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/files/
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:multipart-form {
+  file: @file()
+}
+
+docs {
+  Choisis un fichier dans l'onglet Body de Bruno (image, PDF, Word,
+  Excel...). Types refusés par défaut -> 415. Renvoie l'id du fichier,
+  à réutiliser dans les autres requêtes de ce dossier.
+}

@@ -1,0 +1,26 @@
+meta {
+  name: Create author
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/authors/
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Frank Herbert"
+  }
+}
+
+docs {
+  Crée un auteur. Le `id` retourné est à réutiliser comme `author_id`
+  dans les requêtes du dossier Books.
+}

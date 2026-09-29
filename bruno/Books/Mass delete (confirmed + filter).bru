@@ -1,0 +1,27 @@
+meta {
+  name: Mass delete (confirmed + filter)
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{baseUrl}}/books/?filters=title:lk(dune)
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "confirm": true
+  }
+}
+
+docs {
+  Supprime tous les livres matchant le filtre actif — accepté
+  uniquement parce que `confirm: true` ET un filtre sont présents
+  ensemble. `confirm: true` seul, sans filtre, est encore refusé.
+}

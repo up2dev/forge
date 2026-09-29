@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<p>{{ greeting }}</p>
+<p>{{ intro }}</p>
+<p style="text-align:center; margin:24px 0;">
+  <a href="{{ link }}" style="display:inline-block; padding:12px 24px; background:{{ brand_color }}; color:#ffffff; text-decoration:none; border-radius:6px;">{{ link }}</a>
+</p>
+<p style="color:#71717a; font-size:13px;">{{ expiry_notice }}</p>
+{% endblock %}

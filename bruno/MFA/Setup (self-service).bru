@@ -1,0 +1,30 @@
+meta {
+  name: Setup (self-service)
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/auth/mfa/setup
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "method": "totp"
+  }
+}
+
+docs {
+  method: "totp" ou "email". Pour un token matériel (C105, Yubikey
+  OTP...), ajoute "secret": "<seed fourni par le fabricant>" — sinon
+  un secret est généré côté serveur.
+
+  Pour "totp": renvoie {secret, qr_uri}. Pour "email": envoie un code
+  et renvoie {detail}.
+}

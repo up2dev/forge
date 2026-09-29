@@ -1,0 +1,21 @@
+meta {
+  name: Stream (inline)
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/files/1
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Content-Disposition: inline — pour une image ou un PDF, Bruno
+  (comme un navigateur) l'affiche directement plutôt que de proposer
+  un téléchargement. Remplace "1" par l'id renvoyé par Upload.
+}

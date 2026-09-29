@@ -1,0 +1,28 @@
+meta {
+  name: Request code (resend)
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/auth/mfa/request-code
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "pending_token": ""
+  }
+}
+
+docs {
+  Deux usages :
+  - self-service (déjà connecté) : ajoute "Authorization: Bearer
+    {{token}}" et laisse pending_token vide/absent
+  - pendant un login/enrollment en cours : laisse sans Bearer, colle
+    le pending_token reçu de /auth/login ou /auth/mfa/setup
+
+  Sans les deux -> 401. L'ancien code est invalidé dès qu'un nouveau
+  est envoyé (un seul actif à la fois).
+}

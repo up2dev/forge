@@ -1,0 +1,27 @@
+meta {
+  name: Login options (webauthn)
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/auth/mfa/webauthn/login-options
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "pending_token": ""
+  }
+}
+
+docs {
+  Étape 1/2 d'une connexion WebAuthn — colle le pending_token reçu de
+  /auth/login une fois une clé confirmée. Renvoie {options}, à passer
+  à navigator.credentials.get() côté client (voir Setup (webauthn)
+  pour la limite de test dans Bruno).
+
+  Étape 2/2 : POST /auth/mfa/verify avec {pending_token, method:
+  "webauthn", webauthn_response}.
+}

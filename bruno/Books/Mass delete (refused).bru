@@ -1,0 +1,27 @@
+meta {
+  name: Mass delete (refused - no ids, no confirm)
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{baseUrl}}/books/
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {}
+}
+
+docs {
+  Doit renvoyer 400 : contrairement au massDelete() de Rivet (qui
+  supprime tout ce qui matche les filtres actifs dès que le corps est
+  vide), Forge refuse tant qu'on ne fournit pas `ids` explicites OU
+  `confirm: true` accompagné d'un filtre actif. Voir la requête
+  suivante pour le cas qui aboutit.
+}

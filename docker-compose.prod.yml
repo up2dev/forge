@@ -1,0 +1,72 @@
+# Référence pour un déploiement simple sur un seul serveur (Docker
+# Compose). Pour un vrai environnement multi-serveurs, voir
+# docs/DEPLOYMENT.md — les principes restent les mêmes (image figée,
+# secrets externes, un seul worker sans backend partagé) quel que soit
+# l'orchestrateur.
+#
+# Usage :
+#   cp .env.example .env.prod   # puis éditer .env.prod (vrais secrets)
+#   docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+#   docker compose -f docker-compose.prod.yml exec api alembic upgrade head
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env.prod
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    volumes:
+      # Seule donnée réelle à persister côté app — pas de bind-mount
+      # sur le code, il est figé dans l'image.
+      - forge_storage:/app/storage
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Exécute les tâches planifiées (example_app/schedule.py). UNE seule
+  # instance, jamais plusieurs : chaque instance exécuterait chaque
+  # tâche. Même image que api, autre commande.
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    restart: unless-stopped
+    env_file:
+      - .env.prod
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    # Pas de volume storage : le fichier de log rotatif est celui de api
+    # (deux processus sur le même fichier se marcheraient dessus à la
+    # rotation) — les logs du scheduler passent par la console :
+    # make prod-logs SERVICE=scheduler
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["python", "scripts/schedule.py", "work"]
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    # Pas de port exposé publiquement — seul le conteneur api y accède,
+    # via le réseau Docker interne.
+    volumes:
+      - forge_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  forge_db_data:
+  forge_storage:

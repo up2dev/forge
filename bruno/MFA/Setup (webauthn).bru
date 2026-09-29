@@ -1,0 +1,34 @@
+meta {
+  name: Setup (webauthn)
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/auth/mfa/setup
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "method": "webauthn"
+  }
+}
+
+docs {
+  Renvoie {webauthn_options} — de vraies options WebAuthn (challenge,
+  rp, user...), mais Bruno ne peut pas aller plus loin : Confirm a
+  besoin d'une vraie réponse de navigator.credentials.create(),
+  produite par un navigateur avec une clé de sécurité (ou son
+  équivalent logiciel, WebAuthn étant supporté par Chrome/Firefox/Edge
+  sans clé physique via un "authentificateur de plateforme").
+
+  Pour tester le cycle complet sans navigateur : voir
+  tests/webauthn_helpers.py (authentificateur logiciel utilisé par la
+  suite pytest, avec de vraies signatures EC).
+}

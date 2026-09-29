@@ -1,0 +1,22 @@
+meta {
+  name: Confirm (self-service)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/auth/mfa/confirm
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "method": "totp",
+    "code": "000000"
+  }
+}

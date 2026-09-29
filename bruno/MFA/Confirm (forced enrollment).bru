@@ -1,0 +1,26 @@
+meta {
+  name: Confirm (forced enrollment)
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/auth/mfa/confirm
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "method": "totp",
+    "code": "000000",
+    "pending_token": ""
+  }
+}
+
+docs {
+  Suite de Setup (forced enrollment). Contrairement au self-service,
+  la réponse contient directement {confirmed: true, token: {...}} —
+  confirmer la méthode COMPLÈTE la connexion, pas besoin d'un Verify
+  séparé après.
+}

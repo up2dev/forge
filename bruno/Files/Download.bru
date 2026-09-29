@@ -1,0 +1,21 @@
+meta {
+  name: Download
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/files/1/download
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Content-Disposition: attachment — force le téléchargement quel que
+  soit le type (utile pour Word/Excel, que le navigateur ne peut pas
+  afficher en ligne de toute façon).
+}

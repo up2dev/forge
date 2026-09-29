@@ -1,0 +1,21 @@
+meta {
+  name: List my notes
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/notes/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Ne renvoie que les notes de l'utilisateur connecté (scoping via
+  NoteRepository.owner_column) — jamais celles des autres, même en
+  admin.
+}

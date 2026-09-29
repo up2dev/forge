@@ -1,0 +1,21 @@
+meta {
+  name: Chunked - 4. Complete
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/files/1/complete
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Refusé (400) si received_bytes < total_bytes. Renvoie le même id
+  que Start — utilisable ensuite avec Stream et Download comme
+  n'importe quel fichier.
+}

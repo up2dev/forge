@@ -1,0 +1,33 @@
+meta {
+  name: Login
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "login": "admin",
+    "password": "changeme"
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    bru.setVar("token", res.getBody().token);
+  }
+}
+
+docs {
+  Identifiants créés par `make seed` (admin/changeme, rôle ADMIN).
+  Le script post-response stocke le token dans la variable de
+  collection {{token}}, réutilisée automatiquement par les requêtes
+  Books/Authors qui ont "Bearer {{token}}" en auth.
+
+  Rate-limité à 5 tentatives/minute par IP — au-delà, 429.
+}

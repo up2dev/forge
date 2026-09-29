@@ -1,0 +1,21 @@
+meta {
+  name: Chunked - 3. Status
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/files/1
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Même endpoint que Stream (inline) — tant que l'upload n'est pas
+  complet, renvoie du JSON (received_bytes/total_bytes) au lieu du
+  contenu binaire.
+}

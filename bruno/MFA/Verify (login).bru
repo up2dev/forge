@@ -1,0 +1,25 @@
+meta {
+  name: Verify (login)
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/auth/mfa/verify
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "pending_token": "",
+    "method": "totp",
+    "code": "000000"
+  }
+}
+
+docs {
+  À utiliser une fois une méthode confirmée : relance Auth/Login (qui
+  renverra {pending_token, intent: "verify", methods} au lieu d'un
+  token direct) et colle pending_token ici.
+}

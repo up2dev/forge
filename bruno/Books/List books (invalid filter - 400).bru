@@ -1,0 +1,22 @@
+meta {
+  name: List books (invalid filter - 400)
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/books/?filters=not_a_declared_filter:eq(x)
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Doit renvoyer 400 : `not_a_declared_filter` n'est pas dans
+  BookRepository.filters. Le pendant en lecture (?with=) est, lui,
+  silencieusement ignoré plutôt que rejeté — voir List books et son
+  commentaire sur `with`.
+}

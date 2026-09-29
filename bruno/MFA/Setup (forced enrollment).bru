@@ -1,0 +1,26 @@
+meta {
+  name: Setup (forced enrollment)
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/auth/mfa/setup
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "method": "totp",
+    "pending_token": ""
+  }
+}
+
+docs {
+  Ne marche que si FORGE_MFA_FORCE_ENROLLMENT=1 : Auth/Login renvoie
+  alors {pending_token, intent: "enroll"} pour un compte sans méthode
+  confirmée — colle pending_token ici. Pas de Bearer token : c'est
+  justement le but, l'utilisateur n'est pas encore complètement
+  connecté à ce stade.
+}

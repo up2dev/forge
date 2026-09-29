@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 88">
+  <defs>
+    <linearGradient id="flame" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fcd34d"/>
+      <stop offset="45%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#c2410c"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="88" height="88" rx="18" fill="#292524"/>
+
+  <path transform="translate(12, 12)" d="M32 7
+           L43 21
+           L41 31
+           L48 40
+           L36 58
+           L32 52
+           L28 58
+           L16 40
+           L23 31
+           L21 21
+           Z"
+        fill="url(#flame)"/>
+  <path transform="translate(12, 12)" d="M32 7 L41 31 L32 33 Z" fill="#fef3c7" fill-opacity="0.55"/>
+
+  <text x="112" y="59" font-family="Arial, Helvetica, sans-serif" font-size="46" font-weight="700" fill="#fafaf9">Forge</text>
+</svg>

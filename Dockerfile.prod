@@ -1,0 +1,58 @@
+# Image de production — différences avec le Dockerfile de dev :
+#   - deux étapes : les outils de compilation (build-essential) ne
+#     finissent jamais dans l'image finale, seulement les paquets Python
+#     déjà compilés
+#   - requirements.txt seul (pas requirements-dev.txt) : ni pytest, ni
+#     httpx, ni mongomock dans l'image qui tourne en prod
+#   - utilisateur non-root : une faille dans l'app ou une dépendance ne
+#     donne jamais un accès root au conteneur
+#   - pas de --reload, pas de volumes montés sur le code (voir
+#     docker-compose.prod.yml) : le code livré est figé dans l'image
+#   - pas de dossier tests/ copié : rien à y faire tourner ici
+
+# ---- étape 1 : construction ----
+FROM python:3.12-slim AS builder
+
+WORKDIR /app
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+# ---- étape 2 : image finale ----
+FROM python:3.12-slim
+
+WORKDIR /app
+
+RUN useradd --create-home --uid 1000 forge
+
+COPY --from=builder /root/.local /home/forge/.local
+COPY forge ./forge
+COPY example_app ./example_app
+COPY scripts ./scripts
+COPY alembic ./alembic
+COPY alembic.ini .
+
+RUN chown -R forge:forge /app
+USER forge
+
+ENV PYTHONPATH=/app \
+    PYTHONUNBUFFERED=1 \
+    PATH=/home/forge/.local/bin:$PATH
+
+EXPOSE 8000
+
+# Sonde de santé Docker/orchestrateur — /health ne touche pas la base,
+# jamais authentifiée (voir example_app/main.py).
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
+
+# Un seul worker par défaut : le rate-limiter et le stockage local des
+# fichiers en cours d'upload sont en mémoire/disque local (voir
+# docs/DEPLOYMENT.md) — plusieurs workers ou plusieurs instances sans
+# backend partagé (Redis, disque partagé) donneraient des résultats
+# incohérents d'une requête à l'autre.
+CMD ["uvicorn", "example_app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

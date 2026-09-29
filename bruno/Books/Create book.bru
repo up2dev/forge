@@ -1,0 +1,29 @@
+meta {
+  name: Create book
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/books/
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "title": "Dune",
+    "year": 1965,
+    "author_id": 1
+  }
+}
+
+docs {
+  `author_id` doit correspondre à un auteur existant (voir
+  Authors/Create author). Validé côté schéma (BookCreate) : `title`
+  non vide, `year` entre 0 et 2100 -> 422 sinon.
+}

@@ -1,0 +1,26 @@
+meta {
+  name: Update book
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/books/1
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "year": 1966
+  }
+}
+
+docs {
+  Édition partielle : seuls les champs fournis (BookUpdate) sont
+  modifiés, pas besoin de renvoyer title/author_id.
+}

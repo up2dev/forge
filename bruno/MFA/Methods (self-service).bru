@@ -1,0 +1,15 @@
+meta {
+  name: Methods (self-service)
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/auth/mfa/methods
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

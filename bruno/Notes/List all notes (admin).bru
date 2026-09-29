@@ -1,0 +1,22 @@
+meta {
+  name: List all notes (admin)
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/notes/all
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Renvoie les notes de TOUS les utilisateurs — nécessite la permission
+  NOTES_ADMIN (seul admin/changeme l'a via le seed). 403 sinon.
+  Équivalent du AUTH_UNLIMITED de Rivet, mais sur sa propre route
+  plutôt qu'un comportement caché de GET /notes/.
+}
