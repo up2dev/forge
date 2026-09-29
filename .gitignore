@@ -10,8 +10,11 @@ venv/
 forge.db
 test.db
 
-# Fichiers uploadés + logs (contenu réel, jamais commité)
-storage/
+# Fichiers uploadés + logs (contenu réel, jamais commité) — le / de
+# tête est indispensable : "storage/" sans lui matcherait aussi
+# forge/storage/, le MODULE de code du stockage de fichiers (routes,
+# modèles, service...), pas seulement ce dossier racine de données.
+/storage/
 
 # OS / éditeurs
 .DS_Store

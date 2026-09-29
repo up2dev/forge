@@ -652,9 +652,3 @@ docker-compose.yml / .prod.yml   # stack dev (Mailpit/Adminer) / stack de réfé
 requirements.txt / requirements-dev.txt   # dépendances runtime / + pytest/httpx/mongomock
 docs/INTEGRATION.md         # créer une ressource à la main, from-scratch
 ```
-
-## Prochain module
-
-WebAuthn/FIDO2 (Yubikey en mode clé de sécurité — pas en OTP, déjà
-supporté), doc d'intégration from-scratch — voir `forge-wbs.xlsx` pour
-le détail et les priorités.
