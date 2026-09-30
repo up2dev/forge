@@ -1,27 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 88">
-  <defs>
-    <linearGradient id="flame" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#fcd34d"/>
-      <stop offset="45%" stop-color="#f97316"/>
-      <stop offset="100%" stop-color="#c2410c"/>
-    </linearGradient>
-  </defs>
-
-  <rect x="0" y="0" width="88" height="88" rx="18" fill="#1c1917"/>
-
-  <path transform="translate(12, 12)" d="M32 7
-           L43 21
-           L41 31
-           L48 40
-           L36 58
-           L32 52
-           L28 58
-           L16 40
-           L23 31
-           L21 21
-           Z"
-        fill="url(#flame)"/>
-  <path transform="translate(12, 12)" d="M32 7 L41 31 L32 33 Z" fill="#fef3c7" fill-opacity="0.55"/>
-
-  <text x="112" y="59" font-family="Arial, Helvetica, sans-serif" font-size="46" font-weight="700" fill="#1c1917">Forge</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 120">
+  <g transform="translate(10 10) scale(0.5)">
+    <path fill="#f39321" d="
+      M100 20
+      C91 38 80 51 80 68
+      C80 85 89 96 101 96
+      C115 96 124 85 123 70
+      C122 60 116 53 112 45
+      C113 56 107 63 101 62
+      C94 61 93 52 100 20
+      Z"/>
+    <g fill="#f39321">
+      <rect width="26" height="9" rx="4.5" transform="translate(48 42) rotate(35)"/>
+      <rect width="26" height="9" rx="4.5" transform="translate(56 68) rotate(10)"/>
+      <rect width="26" height="9" rx="4.5" transform="translate(126 51) rotate(-35)"/>
+      <rect width="26" height="9" rx="4.5" transform="translate(118 77) rotate(-10)"/>
+    </g>
+    <path fill="#212e41" d="
+      M15 105
+      C 38 90 100 87 140 91
+      C 158 93 174 96 180 101
+      C 184 104 184 107 180 110
+      C 166 114 150 115 136 113
+      C 124 116 115 119 111 126
+      C 118 134 142 140 156 154
+      C 163 161 160 172 149 173
+      C 141 174 134 169 130 161
+      C 123 148 113 141 100 141
+      C 87 141 77 148 70 161
+      C 66 169 59 174 51 173
+      C 40 172 37 161 44 154
+      C 58 140 82 134 89 126
+      C 85 119 76 116 64 113
+      C 50 115 34 114 20 110
+      C 16 107 15 106 15 105
+      Z"/>
+    <path fill="#eef1f5" d="M40 100 L68 97 L52 109 L48 114 Z"/>
+  </g>
+  <text x="132" y="82" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="700" fill="#212e41">Forge</text>
 </svg>
